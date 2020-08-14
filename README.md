@@ -4,8 +4,8 @@ Discord bot meant to retrieve new updates from manga related sites and alert sub
 Uses Discord4J and HTMLUnit.
 
 TODO for LoginHandler:
-- Add check to see if login is necessary
-- Generate a thread to handle login
+- Figure out how to handle login in thread
+- Have LoginHandler pass information to Bot and present it in Discord Client
 
 TODO for MangaDexWebClient:
 - Have it be generated in a separate thread to handle login
