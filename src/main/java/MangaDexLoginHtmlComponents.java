@@ -1,9 +1,10 @@
-public enum MangaDexLogin {
-    MANGADEX_HOMEPAGE("https://mangadex.org/"),
-    MANGADEX_LOGIN_PAGE("https://mangadex.org/login"),
+public enum MangaDexLoginHtmlComponents {
+    MANGADEX_LOGIN_PAGE_URL("https://mangadex.org/login"),
     MANGADEX_LOGIN_FORM("login_form"),
-    MANGADEX_LOGIN_USERNAME_DIV("login_username"),
-    MANGADEX_LOGIN_PASSWORD_DIV("login_password");
+    MANGADEX_LOGIN_USERNAME_INPUT("login_username"),
+    MANGADEX_LOGIN_PASSWORD_INPUT("login_password"),
+    MANGADEX_LOGIN_REMEMBER_ME_CHECKBOX("remember_me"),
+    MANGADEX_LOGIN_LOGIN_BUTTON("login_button");
 
     private String webComponent;
 
@@ -11,7 +12,7 @@ public enum MangaDexLogin {
         return this.webComponent;
     }
 
-    private MangaDexLogin(String webComponent){
+    MangaDexLoginHtmlComponents(String webComponent){
         this.webComponent = webComponent;
     }
 }

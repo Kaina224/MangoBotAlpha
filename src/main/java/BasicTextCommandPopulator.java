@@ -1,35 +1,43 @@
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.HashMap;
-import java.util.Optional;
-import java.util.Properties;
+import java.util.*;
 
-public class TextCommandRetriever {
-    InputStream inputStream;
+public class BasicTextCommandPopulator {
     private String fileName;
 
-    public TextCommandRetriever(String fileName){
+    public BasicTextCommandPopulator(String fileName){
         this.fileName = fileName;
     }
 
-    public HashMap<String, Command> getTextCommands() throws IOException{
+    public HashMap<String, Command> loadTextCommands(HashMap<String, Command> botCommands) throws IOException{
+        Properties properties = new Properties();
         try {
-            Properties properties = new Properties();
             loadPropertiesFile(properties);
-        } catch (Exception e){
-            throw new (e);
+        } catch (NullPointerException e){
+            throw new NullPointerException("Bot command file somehow ended up being null.");
         }
-        return new HashMap<String, Command>();
+        return loadBasicTextCommands(botCommands, properties);
     }
 
     void loadPropertiesFile(Properties properties) throws IOException{
-        Optional<InputStream>  inputStream = Optional.ofNullable(getClass().getClassLoader().getResourceAsStream(fileName));
+        Optional<InputStream> inputStream = Optional.ofNullable(getClass().getClassLoader().getResourceAsStream(fileName));
         if(inputStream.isPresent()){
             properties.load(inputStream.get());
         }
         else{
             throw new FileNotFoundException(fileName + " does not exist.");
         }
+    }
+
+    HashMap<String, Command> loadBasicTextCommands(HashMap<String, Command> botCommands, Properties properties){
+        Set<String> keys = properties.stringPropertyNames();
+        for (String key : keys) {
+            botCommands.put(key, event -> event.getMessage()
+                                                     .getChannel()
+                                                     .flatMap(channel -> channel.createMessage(properties.getProperty(key))
+                                                     .then()));
+        }
+        return botCommands;
     }
 }
