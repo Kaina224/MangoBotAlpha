@@ -8,7 +8,6 @@ import java.io.IOException;
 import java.util.HashMap;
 
 public class MangoBot {
-
     private static HashMap<String, Command> commands;
 
     public static void main(String args[]) throws IOException{
