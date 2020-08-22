@@ -34,9 +34,9 @@ public class MangaDexLoginHandler {
         final HtmlPage loginPage = getLoginPage(webClient);
         final HtmlForm loginForm = getLoginForm(loginPage);
         final HtmlTextInput usernameInput = getUsernameTextInput(loginForm);
-        final HtmlTextInput passwordInput = getPasswordTextInput(loginForm);
+        final HtmlPasswordInput passwordInput = getPasswordTextInput(loginForm);
         final HtmlCheckBoxInput rememberMeCheckBoxInput = getRememberMeCheckBoxInput(loginForm);
-        final HtmlButton loginButton = getLoginButton(loginForm);
+        final HtmlButton loginButton = getLoginButton(loginPage);
         attemptLogin(webClient,
                      passwordInput,
                      rememberMeCheckBoxInput,
@@ -83,17 +83,18 @@ public class MangaDexLoginHandler {
     }
 
     HtmlForm getLoginForm(HtmlPage loginPage) throws ElementNotFoundException {
-        final HtmlForm usernameForm;
-        try{
-            usernameForm = loginPage.getFormByName(MangaDexLoginHtmlComponents.MANGADEX_LOGIN_FORM.getWebComponent());
+        Optional<HtmlForm> loginForm = Optional.empty();
+        List<HtmlForm> loginForms = loginPage.getForms();
+        for (HtmlForm form : loginForms){
+            if (form.getId().equals(MangaDexLoginHtmlComponents.MANGADEX_LOGIN_FORM.getWebComponent())){
+                loginForm = Optional.of(form);
+                break;
+            }
         }
-        catch (ElementNotFoundException e){
+        if(loginForm.isEmpty()){
             throw new FieldNotFoundException(MangaDexLoginErrors.MANGADEX_LOGIN_FORM_WRONG_ERROR.getError());
         }
-        catch (NullPointerException e){
-            throw new NullPointerException(MangaDexLoginErrors.MANGADEX_LOGIN_FORM_NULL_ERROR.getError());
-        }
-        return usernameForm;
+        return loginForm.get();
     }
 
     HtmlTextInput getUsernameTextInput(HtmlForm loginForm) {
@@ -110,8 +111,8 @@ public class MangaDexLoginHandler {
         return usernameInput;
     }
 
-    HtmlTextInput getPasswordTextInput(HtmlForm loginForm) {
-        final HtmlTextInput passwordInput;
+    HtmlPasswordInput getPasswordTextInput(HtmlForm loginForm) {
+        final HtmlPasswordInput passwordInput;
         try{
             passwordInput = loginForm.getInputByName(MangaDexLoginHtmlComponents.MANGADEX_LOGIN_PASSWORD_INPUT.getWebComponent());
         }
@@ -138,42 +139,38 @@ public class MangaDexLoginHandler {
         return rememberMeCheckBoxInput;
     }
 
-    HtmlButton getLoginButton(HtmlForm loginForm){
-        final HtmlButton loginButton;
-        try{
-            loginButton = loginForm.getButtonByName(MangaDexLoginHtmlComponents.MANGADEX_LOGIN_LOGIN_BUTTON.getWebComponent());
+    HtmlButton getLoginButton(HtmlPage loginPage){
+        Optional<HtmlButton> loginButton =
+                Optional.ofNullable(loginPage.getFirstByXPath(MangaDexLoginHtmlComponents
+                        .MANGADEX_LOGIN_LOGIN_BUTTON_XPATH
+                        .getWebComponent()));
+        if(loginButton.isEmpty()){
+            throw new FieldNotFoundException(MangaDexLoginErrors.MANGADEX_LOGIN_BUTTON_XPATH_WRONG_ERROR.getError());
         }
-        catch (ElementNotFoundException e){
-            throw new FieldNotFoundException(MangaDexLoginErrors.MANGADEX_LOGIN_LOGIN_BUTTON_WRONG_ERROR.getError());
-        }
-        catch (NullPointerException e){
-            throw new NullPointerException(MangaDexLoginErrors.MANGADEX_LOGIN_LOGIN_BUTTON_NULL_ERROR.getError());
-        }
-        return loginButton;
+        return loginButton.get();
     }
 
     void attemptLogin(WebClient webClient,
-                      HtmlTextInput passwordInput,
+                      HtmlPasswordInput passwordInput,
                       HtmlCheckBoxInput rememberMeCheckBoxInput,
                       HtmlButton loginButton,
-                      HtmlTextInput usernameInput) throws IOException, InterruptedException{
+                      HtmlTextInput usernameInput) throws IOException{
         //Change fields, click button, then validate redirect to home page, otherwise throw loginfailedexception
         Properties properties = new Properties();
         loadCredentialsPropertiesFile(properties);
         usernameInput.setText(properties.getProperty("mangadexusername"));
+        webClient.waitForBackgroundJavaScript(1000);
         passwordInput.setText(properties.getProperty("mangadexpassword"));
+        webClient.waitForBackgroundJavaScript(1000);
         rememberMeCheckBoxInput.setChecked(true);
+        webClient.waitForBackgroundJavaScript(1000);
         loginButton.click();
 
-        try{
-            Thread.sleep(1000);
-        } catch (InterruptedException e){
-            Thread.currentThread().interrupt();
-            throw new InterruptedException("Placeholder Text");
-        }
+        webClient.waitForBackgroundJavaScript(60000);
 
         if (hasLoginSucceeded(webClient)){
             //Do something with the bot
+            System.out.println("I've hit this part of the code!");
         }
         else{
             throw new RuntimeException(MangaDexLoginErrors.MANGADEX_LOGIN_FAILED_LOGIN_ERROR.getError());

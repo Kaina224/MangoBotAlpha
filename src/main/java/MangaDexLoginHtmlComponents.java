@@ -4,7 +4,8 @@ public enum MangaDexLoginHtmlComponents {
     MANGADEX_LOGIN_USERNAME_INPUT("login_username"),
     MANGADEX_LOGIN_PASSWORD_INPUT("login_password"),
     MANGADEX_LOGIN_REMEMBER_ME_CHECKBOX("remember_me"),
-    MANGADEX_LOGIN_LOGIN_BUTTON("login_button");
+    MANGADEX_LOGIN_LOGIN_BUTTON("login_button"),
+    MANGADEX_LOGIN_LOGIN_BUTTON_XPATH("//button[@id=\"login_button\"]");
 
     private String webComponent;
 

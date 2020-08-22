@@ -31,7 +31,9 @@ public enum MangaDexLoginErrors {
     MANGADEX_LOGIN_HOME_PAGE_URL_WRONG_ERROR("Home page for Mangadex has been changed. " +
                                              "Please update the MangaDexHomePageComponents to match changed home URL. "),
     MANGADEX_LOGIN_HOME_PAGE_URL_NULL_ERROR("The homepage URL supplied somehow ended up being null. " +
-                                            "Check your changes to ensure this doesn't happen.");
+                                            "Check your changes to ensure this doesn't happen."),
+    MANGADEX_LOGIN_BUTTON_XPATH_WRONG_ERROR("The Xpath for the login button is incorrect. " +
+                                            "Please check the MangaDexLoginHtmlComponents to correct this.");
 
     private String error;
 

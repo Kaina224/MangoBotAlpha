@@ -1,24 +1,41 @@
-import com.gargoylesoftware.htmlunit.ElementNotFoundException;
 import com.gargoylesoftware.htmlunit.WebClient;
-import com.gargoylesoftware.htmlunit.html.*;
 
-import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.InputStream;
-import java.util.Optional;
-import java.util.Properties;
 
 public class MangaDexWebClient {
     private WebClient webClient;
     private MangaDexLoginHandler mangaDexLoginHandler;
+    private boolean alreadyAttemptedLogin;
+    private boolean loginSucceeded;
 
-    MangaDexWebClient(WebClient webClient){
-        this.webClient = webClient;
+    MangaDexWebClient(){
+        webClient = new WebClient();
+        webClient.getOptions().setScreenHeight(1024);
+        webClient.getOptions().setScreenWidth(768);
+        webClient.getOptions().setCssEnabled(false);
+        webClient.setJavaScriptTimeout(120000);
         mangaDexLoginHandler = new MangaDexLoginHandler();
+        alreadyAttemptedLogin = false;
     }
 
-    public void fetchFollowedMangaList() throws IOException, InterruptedException{
-        mangaDexLoginHandler.handleLogin(webClient);
+    public void attemptLogin(){
+        try{
+            mangaDexLoginHandler.handleLogin(webClient);
+            alreadyAttemptedLogin = true;
+            loginSucceeded = true;
+        }
+        catch (IOException | InterruptedException e){
+            alreadyAttemptedLogin = true;
+            loginSucceeded = false;
+        }
+    }
+
+    boolean hasAlreadyAttemptedLogin(){
+        return alreadyAttemptedLogin;
+    }
+
+    boolean hasLoginSucceeded(){
+        return loginSucceeded;
     }
 
 }

@@ -44,26 +44,21 @@ public class MangaDexLoginHandlerTests {
     }
 
     @Test
-    public void getLoginForm_loginFormIsIncorrect_assertFieldNotFoundException(){
+    public void getLoginForm_loginFormIDIsIncorrect_assertFieldNotFoundException(){
         MangaDexLoginHandler mangaDexLoginHandler = new MangaDexLoginHandler();
 
         HtmlPage htmlPage = mock(HtmlPage.class);
-        doThrow(new ElementNotFoundException("","",""))
-                .when(htmlPage).getFormByName(MangaDexLoginHtmlComponents.MANGADEX_LOGIN_FORM.getWebComponent());
+        HtmlForm mockForm = mock(HtmlForm.class);
+        List<HtmlForm> mockFormList = new ArrayList<>();
+        mockFormList.add(mockForm);
+
+        when(htmlPage.getForms()).thenReturn(mockFormList);
+        when(mockForm.getId()).thenReturn("some_wrong_id");
+
         FieldNotFoundException e = assertThrows(FieldNotFoundException.class, () -> mangaDexLoginHandler.getLoginForm(htmlPage));
         assertEquals(MangaDexLoginErrors.MANGADEX_LOGIN_FORM_WRONG_ERROR.getError(), e.getMessage());
     }
 
-    @Test
-    public void getLoginForm_loginFormIsNull_assertNullPointerException(){
-        MangaDexLoginHandler mangaDexLoginHandler = new MangaDexLoginHandler();
-
-        HtmlPage htmlPage = mock(HtmlPage.class);
-        doThrow(new NullPointerException())
-                .when(htmlPage).getFormByName(MangaDexLoginHtmlComponents.MANGADEX_LOGIN_FORM.getWebComponent());
-        NullPointerException e = assertThrows(NullPointerException.class, () -> mangaDexLoginHandler.getLoginForm(htmlPage));
-        assertEquals(MangaDexLoginErrors.MANGADEX_LOGIN_FORM_NULL_ERROR.getError(), e.getMessage());
-    }
 
     @Test
     public void getLoginForm_loginFormRetrieved_assertFormCorrect(){
@@ -71,7 +66,11 @@ public class MangaDexLoginHandlerTests {
 
         HtmlPage loginPage = mock(HtmlPage.class);
         HtmlForm expectedForm = mock(HtmlForm.class);
-        when(loginPage.getFormByName(MangaDexLoginHtmlComponents.MANGADEX_LOGIN_FORM.getWebComponent())).thenReturn(expectedForm);
+        List<HtmlForm> mockFormList = new ArrayList<>();
+        mockFormList.add(expectedForm);
+
+        when(loginPage.getForms()).thenReturn(mockFormList);
+        when(expectedForm.getId()).thenReturn(MangaDexLoginHtmlComponents.MANGADEX_LOGIN_FORM.getWebComponent());
 
         HtmlForm actualForm = mangaDexLoginHandler.getLoginForm(loginPage);
         assertEquals(expectedForm, actualForm);
@@ -160,15 +159,15 @@ public class MangaDexLoginHandlerTests {
 
         List<HtmlInput> inputList = new ArrayList<>();
         HtmlForm htmlForm = mock(HtmlForm.class);
-        HtmlTextInput expectedTextInput = mock(HtmlTextInput.class);
-        inputList.add(expectedTextInput);
+        HtmlPasswordInput expectedPasswordInput = mock(HtmlPasswordInput.class);
+        inputList.add(expectedPasswordInput);
         when(htmlForm.getInputsByName(MangaDexLoginHtmlComponents.MANGADEX_LOGIN_PASSWORD_INPUT.getWebComponent()))
                 .thenReturn(inputList);
         when(htmlForm.getInputByName(MangaDexLoginHtmlComponents.MANGADEX_LOGIN_PASSWORD_INPUT.getWebComponent()))
                 .thenReturn(inputList);
 
         HtmlInput actualTextInput = mangaDexLoginHandler.getPasswordTextInput(htmlForm);
-        assertEquals(expectedTextInput, actualTextInput);
+        assertEquals(expectedPasswordInput, actualTextInput);
     }
 
     @Test
@@ -222,38 +221,24 @@ public class MangaDexLoginHandlerTests {
     public void getLoginButton_loginButtonIsWrong_assertFieldNotFoundException(){
         MangaDexLoginHandler mangaDexLoginHandler = new MangaDexLoginHandler();
 
-        HtmlForm htmlForm = mock(HtmlForm.class);
-        doThrow(new ElementNotFoundException("", "",""))
-                .when(htmlForm).getButtonByName(MangaDexLoginHtmlComponents.MANGADEX_LOGIN_LOGIN_BUTTON.getWebComponent());
-
-        FieldNotFoundException e = assertThrows(FieldNotFoundException.class, () -> mangaDexLoginHandler.getLoginButton(htmlForm));
-        assertEquals(MangaDexLoginErrors.MANGADEX_LOGIN_LOGIN_BUTTON_WRONG_ERROR.getError(), e.getMessage());
-    }
-
-    @Test
-    public void getLoginButton_loginButtonIsNull_assertNullPointerException(){
-        MangaDexLoginHandler mangaDexLoginHandler = new MangaDexLoginHandler();
-
-        HtmlForm htmlForm = mock(HtmlForm.class);
-        doThrow(new NullPointerException(""))
-                .when(htmlForm).getButtonByName(MangaDexLoginHtmlComponents.MANGADEX_LOGIN_LOGIN_BUTTON.getWebComponent());
-
-        NullPointerException e = assertThrows(NullPointerException.class, () -> mangaDexLoginHandler.getLoginButton(htmlForm));
-        assertEquals(MangaDexLoginErrors.MANGADEX_LOGIN_LOGIN_BUTTON_NULL_ERROR.getError(), e.getMessage());
+        HtmlPage htmlPage = mock(HtmlPage.class);
+        when(htmlPage.getFirstByXPath(MangaDexLoginHtmlComponents.MANGADEX_LOGIN_LOGIN_BUTTON_XPATH.getWebComponent()))
+                .thenReturn(null);
+        FieldNotFoundException e = assertThrows(FieldNotFoundException.class, () -> mangaDexLoginHandler.getLoginButton(htmlPage));
+        assertEquals(MangaDexLoginErrors.MANGADEX_LOGIN_BUTTON_XPATH_WRONG_ERROR.getError(), e.getMessage());
     }
 
     @Test
     public void getLoginButton_loginButtonRetrieved_assertLoginButtonCorrect(){
         MangaDexLoginHandler mangaDexLoginHandler = new MangaDexLoginHandler();
 
-        HtmlForm htmlForm = mock(HtmlForm.class);
+        HtmlPage htmlPage = mock(HtmlPage.class);
         HtmlButton expectedButton = mock(HtmlButton.class);
-        when(htmlForm.getButtonByName(MangaDexLoginHtmlComponents.MANGADEX_LOGIN_LOGIN_BUTTON.getWebComponent()))
+        when(htmlPage.getFirstByXPath(MangaDexLoginHtmlComponents.MANGADEX_LOGIN_LOGIN_BUTTON_XPATH.getWebComponent()))
                 .thenReturn(expectedButton);
 
-        HtmlButton actualButton = mangaDexLoginHandler.getLoginButton(htmlForm);
+        HtmlButton actualButton = mangaDexLoginHandler.getLoginButton(htmlPage);
         assertEquals(expectedButton, actualButton);
-
     }
 
     @Test

@@ -9,6 +9,7 @@ import java.util.HashMap;
 
 public class MangoBot {
     private static HashMap<String, Command> commands;
+    private static MangaDexWebClient mangaDexWebClient = new MangaDexWebClient();
 
     public static void main(String args[]) throws IOException{
         loadCommands();
@@ -24,7 +25,7 @@ public class MangoBot {
     }
 
     private static void loadCommands() throws IOException {
-        CommandPopulator commandPopulator = new CommandPopulator();
+        CommandPopulator commandPopulator = new CommandPopulator(mangaDexWebClient);
         commands = commandPopulator.createBotCommands();
     }
 }
