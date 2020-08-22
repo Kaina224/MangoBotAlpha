@@ -10,10 +10,7 @@ public class MangaDexWebClient {
 
     MangaDexWebClient(){
         webClient = new WebClient();
-        webClient.getOptions().setScreenHeight(1024);
-        webClient.getOptions().setScreenWidth(768);
         webClient.getOptions().setCssEnabled(false);
-        webClient.setJavaScriptTimeout(120000);
         mangaDexLoginHandler = new MangaDexLoginHandler();
         alreadyAttemptedLogin = false;
     }
